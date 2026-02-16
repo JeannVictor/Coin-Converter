@@ -4,6 +4,7 @@ import com.coinconverter.CoinConverter.dto.response.FavoriteCoinResponse;
 import com.coinconverter.CoinConverter.entity.FavoriteCoin;
 import com.coinconverter.CoinConverter.exception.FavoriteCoinAlreadyExistsException;
 import com.coinconverter.CoinConverter.repository.FavoriteCoinRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class FavoriteCoinService {
                 .coinName(coinName)
                 .userEmail(userEmail)
                 .build();
-
+        favoriteCoin.setUserEmail(userEmail);
         favoriteCoinRepository.save(favoriteCoin);
 
         return FavoriteCoinResponse.builder()
@@ -35,6 +36,7 @@ public class FavoriteCoinService {
                 .build();
     }
 
+    @Transactional
     public void deleteFavoriteCoin(String userEmail, String coinName) {
         if (!favoriteCoinRepository.existsByUserEmailAndCoinName(userEmail, coinName)) {
             throw new RuntimeException("This coin with name " + coinName + " is not favorite");

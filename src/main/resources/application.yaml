@@ -24,3 +24,11 @@ api:
   exchange:
     base-url: "https://v6.exchangerate-api.com/v6"
     key: ${API_KEY}
+
+  security:
+    token:
+      secret: secret-key
+      expiration: 120
+
+
+

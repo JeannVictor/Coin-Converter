@@ -13,14 +13,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Log4j2
-@Service
 @RequiredArgsConstructor
+@Service
 public class AuthService {
 
+    private final JwtService jwtService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // Register a new user in the system
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateEmailException("Email already exists");
@@ -30,7 +30,6 @@ public class AuthService {
             throw new IllegalStateException("Passwords do not match");
         }
 
-        // Save user to the database
         User newUser = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -38,16 +37,12 @@ public class AuthService {
 
         User saved = userRepository.save(newUser);
 
-        // Return user information
         return AuthResponse.builder()
                 .id(saved.getId())
                 .email(saved.getEmail())
                 .build();
     }
 
-    // User login to the system
-    //TODO Verify what this orElseThrow does correctly
-    // I believe it does something like this, otherwise it throws an exception of type X
     public AuthResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
@@ -57,9 +52,12 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
+        String token = jwtService.generateToken(user);
+
         return AuthResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
+                .token(token)
                 .build();
     }
 }
